@@ -1,9 +1,10 @@
-"use client"
+"use client";
 
 import { useState, useRef } from 'react';
 
 export default function ScoreCalculator() {
   const [score, setScore] = useState(null);
+   const [pastScore, setPastScore] = useState(null);
   const [inputValues, setInputValues] = useState({});
   const formRef = useRef(null);
 
@@ -14,11 +15,14 @@ export default function ScoreCalculator() {
     const otherIncome = parseInt(document.getElementById('otherIncome').value);
     const netWorth = parseInt(document.getElementById('netWorth').value);
     const liabilities = parseInt(document.getElementById('liabilities').value);
+     const pastScore = parseFloat(document.getElementById('pastScore').value);
 
     setInputValues({ age, occupation, annualIncome, otherIncome, netWorth, liabilities });
 
     const score = calculateScore(age, occupation, annualIncome, otherIncome, netWorth, liabilities);
     setScore(score.toFixed(2));
+    setPastScore(pastScore);
+  
   }
 
   function calculateScore(age, occupation, annualIncome, otherIncome, netWorth, liabilities) {
@@ -57,6 +61,33 @@ export default function ScoreCalculator() {
     return score;
   }
 
+  function getOutcomeReport(score) {
+    let report = {
+      financialHealthScore: `${score} out of 1.00`,
+      change: 'Increased (or decrease) will be reflected on the last month points.',
+      financialHealthPosition: '',
+      creditUtilization: ''
+    };
+     const change = (score - pastScore).toFixed(2);
+    report.change = `Change: ${change >= 0 ? 'Increased' : 'Decreased'} by ${Math.abs(change)} points compared to the last month.`;
+
+    if (score >= 0.75) {
+      report.financialHealthPosition = 'Excellent. Has outstanding ability to pay liability using current worth and income in short run.';
+      report.creditUtilization = ' Credit utilization should be monitored';
+    } else if (score >= 0.50) {
+      report.financialHealthPosition = 'Good. Has good ability to pay liability using current worth and income in short run.';
+      report.creditUtilization = 'Credit utilization should be monitored';
+    } else if (score >= 0.25) {
+      report.financialHealthPosition = 'Low. Has limited ability to pay liability using current worth and income in short run.';
+      report.creditUtilization = 'Credit utilization should be monitored';
+    } else {
+      report.financialHealthPosition = 'Weak. Has no ability to pay liability using current worth and income in short run.';
+      report.creditUtilization = 'Credit utilization should be monitored';
+    }
+
+    return report;
+  }
+
   function retry() {
     setScore(null);
     setInputValues({});
@@ -68,7 +99,7 @@ export default function ScoreCalculator() {
   return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="border border-gray-300 rounded-lg p-6 shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-4 text-center">Score Calculator</h1>
+        <h1 className="text-2xl font-bold mb-4 text-center">Financial Score Calculator</h1>
         {score === null ? (
           <form ref={formRef} id="scoreForm" className="space-y-4">
             <div>
@@ -99,6 +130,10 @@ export default function ScoreCalculator() {
               <label htmlFor="liabilities" className="block text-sm font-medium text-gray-700">Liabilities/Expenses:</label>
               <input type="number" id="liabilities" name="liabilities" min="0" required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
             </div>
+            <div>
+              <label htmlFor="pastScore" className="block text-sm font-medium text-gray-700">Past Score:</label>
+              <input type="number" step="0.01" id="pastScore" name="pastScore" min="0" max="1" required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+            </div>
             <button type="button" onClick={calculate} className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Calculate Score</button>
           </form>
         ) : (
@@ -115,6 +150,19 @@ export default function ScoreCalculator() {
                 </div>
               </div>
             </div>
+            <div className="mt-6">
+              {(() => {
+                const report = getOutcomeReport(score);
+                return (
+                  <>
+                    <p><strong>Financial health score:</strong> {report.financialHealthScore}</p>
+                    <p><strong>Change:</strong> {report.change}</p>
+                    <p><strong>Financial health position:</strong> {report.financialHealthPosition}</p>
+                    <p><strong>Credit utilization:</strong> {report.creditUtilization}</p>
+                  </>
+                );
+              })()}
+            </div>
             <div className="mt-6 grid grid-cols-2 gap-6">
               {Object.keys(inputValues).map(key => (
                 <div key={key} className="p-4 rounded-lg shadow-md text-center text-lg font-medium" style={{ backgroundColor: `hsl(${Math.random() * 360}, 70%, 90%)` }}>
@@ -122,7 +170,7 @@ export default function ScoreCalculator() {
                 </div>
               ))}
             </div>
-            <button onClick={retry} className="mt-4 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Retry</button>
+            <button onClick={retry} className="w-full mt-6 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Retry</button>
           </div>
         )}
       </div>
