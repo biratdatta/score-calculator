@@ -17,6 +17,12 @@ export default function ScoreCalculator() {
     const liabilities = parseInt(document.getElementById('liabilities').value);
      const pastScore = parseFloat(document.getElementById('pastScore').value);
 
+      // Validate that all required fields are filled and age is above 0
+    if (age <= 0 || isNaN(age) || !occupation || isNaN(annualIncome) || !annualIncome || isNaN(otherIncome) || !otherIncome || isNaN(netWorth) || !netWorth || isNaN(liabilities) || !liabilities) {
+      alert('Please fill in all required fields and ensure age is above 0.');
+      return;
+    }
+
     setInputValues({ age, occupation, annualIncome, otherIncome, netWorth, liabilities });
 
     const score = calculateScore(age, occupation, annualIncome, otherIncome, netWorth, liabilities);
@@ -68,8 +74,9 @@ export default function ScoreCalculator() {
       financialHealthPosition: '',
       creditUtilization: ''
     };
-     const change = (score - pastScore).toFixed(2);
-    report.change = `Change: ${change >= 0 ? 'Increased' : 'Decreased'} by ${Math.abs(change)} points compared to the last month.`;
+  const change = pastScore !== null ? (score - pastScore).toFixed(2) : 'N/A';
+    report.change = pastScore !== null ? `Change: ${change >= 0 ? 'Increased' : 'Decreased'} by ${Math.abs(change)} points compared to the last month.` : 'Change: N/A';
+
 
     if (score >= 0.75) {
       report.financialHealthPosition = 'Excellent. Has outstanding ability to pay liability using current worth and income in short run.';
