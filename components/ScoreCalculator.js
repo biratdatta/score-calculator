@@ -70,12 +70,12 @@ export default function ScoreCalculator() {
   function getOutcomeReport(score) {
     let report = {
       financialHealthScore: `${score} out of 1.00`,
-      change: 'Increased (or decrease) will be reflected on the last month points.',
+      change: 'Increased (or decrease) will be reflected on the last assessment points.',
       financialHealthPosition: '',
       creditUtilization: ''
     };
   const change = pastScore !== null ? (score - pastScore).toFixed(2) : 'N/A';
-    report.change = pastScore !== null ? `Change: ${change >= 0 ? 'Increased' : 'Decreased'} by ${Math.abs(change)} points compared to the last month.` : 'Change: N/A';
+    report.change = pastScore !== null ? `Change: ${change >= 0 ? 'Increased' : 'Decreased'} by ${Math.abs(change)} points compared to the last assessment.` : 'Change: N/A';
 
 
     if (score >= 0.75) {
@@ -170,13 +170,21 @@ export default function ScoreCalculator() {
                 );
               })()}
             </div>
-            <div className="mt-6 grid grid-cols-2 gap-6">
-              {Object.keys(inputValues).map(key => (
-                <div key={key} className="p-4 rounded-lg shadow-md text-center text-lg font-medium" style={{ backgroundColor: `hsl(${Math.random() * 360}, 70%, 90%)` }}>
-                  <span className="block mb-2">{key.charAt(0).toUpperCase() + key.slice(1)}:</span> {inputValues[key]}
-                </div>
-              ))}
-            </div>
+         <div className="mt-6 grid grid-cols-2 gap-6">
+  {Object.keys(inputValues).map(key => {
+    
+    const formattedKey = key.replace(/([a-z])([A-Z])/g, '$1 $2');
+    return (
+      <div key={key} className="p-4 rounded-lg shadow-md text-center text-lg font-medium" style={{ backgroundColor: `hsl(${Math.random() * 360}, 70%, 90%)` }}>
+        <span className="block mb-2">
+          {formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1)}:
+        </span>
+        {inputValues[key]}
+      </div>
+    );
+  })}
+</div>
+
             <button onClick={retry} className="w-full mt-6 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Retry</button>
           </div>
         )}
